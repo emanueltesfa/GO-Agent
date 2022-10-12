@@ -5,7 +5,6 @@ from write import writeOutput
 
 from host import GO
 
-
 class RandomPlayer():
     def __init__(self):
         self.type = 'random'
@@ -17,18 +16,17 @@ class RandomPlayer():
         :param go: Go instance.
         :param piece_type: 1('X') or 2('O').
         :return: (row, column) coordinate of input.
-        '''
+        '''        
         possible_placements = []
         for i in range(go.size):
             for j in range(go.size):
-                if go.valid_place_check(i, j, piece_type, test_check=True):
-                    possible_placements.append((i, j))
+                if go.valid_place_check(i, j, piece_type, test_check = True):
+                    possible_placements.append((i,j))
 
         if not possible_placements:
             return "PASS"
         else:
             return random.choice(possible_placements)
-
 
 if __name__ == "__main__":
     N = 5
