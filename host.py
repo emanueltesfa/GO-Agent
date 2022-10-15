@@ -9,6 +9,7 @@ from copy import deepcopy
 from read import *
 from write import writeNextInput
 
+
 class GO:
     def __init__(self, n):
         """
@@ -17,13 +18,13 @@ class GO:
         :param n: size of the board n*n
         """
         self.size = n
-        #self.previous_board = None # Store the previous board
-        self.X_move = True # X chess plays first
-        self.died_pieces = [] # Intialize died pieces to be empty
-        self.n_move = 0 # Trace the number of moves
-        self.max_move = n * n - 1 # The max movement of a Go game
-        self.komi = n/2 # Komi rule
-        self.verbose = False # Verbose only when there is a manual player
+        # self.previous_board = None # Store the previous board
+        self.X_move = True  # X chess plays first
+        self.died_pieces = []  # Intialize died pieces to be empty
+        self.n_move = 0  # Trace the number of moves
+        self.max_move = n * n - 1  # The max movement of a Go game
+        self.komi = n/2  # Komi rule
+        self.verbose = False  # Verbose only when there is a manual player
 
     def init_board(self, n):
         '''
@@ -32,7 +33,8 @@ class GO:
         :param n: width and height of the board.
         :return: None.
         '''
-        board = [[0 for x in range(n)] for y in range(n)]  # Empty space marked as 0
+        board = [[0 for x in range(n)]
+                 for y in range(n)]  # Empty space marked as 0
         # 'X' pieces marked as 1
         # 'O' pieces marked as 2
         self.board = board
@@ -85,10 +87,14 @@ class GO:
         board = self.board
         neighbors = []
         # Detect borders and add neighbor coordinates
-        if i > 0: neighbors.append((i-1, j))
-        if i < len(board) - 1: neighbors.append((i+1, j))
-        if j > 0: neighbors.append((i, j-1))
-        if j < len(board) - 1: neighbors.append((i, j+1))
+        if i > 0:
+            neighbors.append((i-1, j))
+        if i < len(board) - 1:
+            neighbors.append((i+1, j))
+        if j > 0:
+            neighbors.append((i, j-1))
+        if j < len(board) - 1:
+            neighbors.append((i, j+1))
         return neighbors
 
     def detect_neighbor_ally(self, i, j):
@@ -163,7 +169,7 @@ class GO:
                 if board[i][j] == piece_type:
                     # The piece die if it has no liberty
                     if not self.find_liberty(i, j):
-                        died_pieces.append((i,j))
+                        died_pieces.append((i, j))
         return died_pieces
 
     def remove_died_pieces(self, piece_type):
@@ -175,7 +181,8 @@ class GO:
         '''
 
         died_pieces = self.find_died_pieces(piece_type)
-        if not died_pieces: return []
+        if not died_pieces:
+            return []
         self.remove_certain_pieces(died_pieces)
         return died_pieces
 
@@ -221,7 +228,7 @@ class GO:
         :param piece_type: 1(white piece) or 2(black piece).
         :param test_check: boolean if it's a test check.
         :return: boolean indicating whether the placement is valid.
-        '''   
+        '''
         board = self.board
         verbose = self.verbose
         if test_check:
@@ -230,19 +237,21 @@ class GO:
         # Check if the place is in the board range
         if not (i >= 0 and i < len(board)):
             if verbose:
-                print(('Invalid placement. row should be in the range 1 to {}.').format(len(board) - 1))
+                print(('Invalid placement. row should be in the range 1 to {}.').format(
+                    len(board) - 1))
             return False
         if not (j >= 0 and j < len(board)):
             if verbose:
-                print(('Invalid placement. column should be in the range 1 to {}.').format(len(board) - 1))
+                print(('Invalid placement. column should be in the range 1 to {}.').format(
+                    len(board) - 1))
             return False
-        
+
         # Check if the place already has a piece
         if board[i][j] != 0:
             if verbose:
                 print('Invalid placement. There is already a chess in this position.')
             return False
-        
+
         # Copy the board for testing
         test_go = self.copy_board()
         test_board = test_go.board
@@ -264,17 +273,18 @@ class GO:
         else:
             if self.died_pieces and self.compare_board(self.previous_board, test_go.board):
                 if verbose:
-                    print('Invalid placement. A repeat move not permitted by the KO rule.')
+                    print(
+                        'Invalid placement. A repeat move not permitted by the KO rule.')
                 return False
         return True
-        
+
     def update_board(self, new_board):
         '''
         Update the board with new_board
 
         :param new_board: new board.
         :return: None.
-        '''   
+        '''
         self.board = new_board
 
     def visualize_board(self):
@@ -328,7 +338,7 @@ class GO:
             for j in range(self.size):
                 if board[i][j] == piece_type:
                     cnt += 1
-        return cnt          
+        return cnt
 
     def judge_winner(self):
         '''
@@ -336,14 +346,17 @@ class GO:
 
         :param: None.
         :return: piece type of winner of the game (0 if it's a tie).
-        '''        
+        '''
 
         cnt_1 = self.score(1)
         cnt_2 = self.score(2)
-        if cnt_1 > cnt_2 + self.komi: return 1
-        elif cnt_1 < cnt_2 + self.komi: return 2
-        else: return 0
-        
+        if cnt_1 > cnt_2 + self.komi:
+            return 1
+        elif cnt_1 < cnt_2 + self.komi:
+            return 2
+        else:
+            return 0
+
     def play(self, player1, player2, verbose=False):
         '''
         The game starts!
@@ -360,21 +373,22 @@ class GO:
             print('----------Input "exit" to exit the program----------')
             print('X stands for black chess, O stands for white chess.')
             self.visualize_board()
-        
+
         verbose = self.verbose
         # Game starts!
         while 1:
             piece_type = 1 if self.X_move else 2
 
             # Judge if the game should end
-            if self.game_end(piece_type):       
+            if self.game_end(piece_type):
                 result = self.judge_winner()
                 if verbose:
                     print('Game ended.')
-                    if result == 0: 
+                    if result == 0:
                         print('The game is a tie.')
-                    else: 
-                        print('The winner is {}'.format('X' if result == 1 else 'O'))
+                    else:
+                        print('The winner is {}'.format(
+                            'X' if result == 1 else 'O'))
                 return result
 
             if verbose:
@@ -382,8 +396,10 @@ class GO:
                 print(player + " makes move...")
 
             # Game continues
-            if piece_type == 1: action = player1.get_input(self, piece_type)
-            else: action = player2.get_input(self, piece_type)
+            if piece_type == 1:
+                action = player1.get_input(self, piece_type)
+            else:
+                action = player2.get_input(self, piece_type)
 
             if verbose:
                 player = "X" if piece_type == 1 else "O"
@@ -393,24 +409,26 @@ class GO:
                 # If invalid input, continue the loop. Else it places a chess on the board.
                 if not self.place_chess(action[0], action[1], piece_type):
                     if verbose:
-                        self.visualize_board() 
+                        self.visualize_board()
                     continue
 
-                self.died_pieces = self.remove_died_pieces(3 - piece_type) # Remove the dead pieces of opponent
+                self.died_pieces = self.remove_died_pieces(
+                    3 - piece_type)  # Remove the dead pieces of opponent
             else:
                 self.previous_board = deepcopy(self.board)
 
             if verbose:
-                self.visualize_board() # Visualize the board again
+                self.visualize_board()  # Visualize the board again
                 print()
 
             self.n_move += 1
-            self.X_move = not self.X_move # Players take turn
+            self.X_move = not self.X_move  # Players take turn
+
 
 def judge(n_move, verbose=False):
 
     N = 5
-   
+
     piece_type, previous_board, board = readInput(N)
     go = GO(N)
     go.verbose = verbose
@@ -425,7 +443,8 @@ def judge(n_move, verbose=False):
     if action == "MOVE":
         if not go.place_chess(x, y, piece_type):
             print('Game end.')
-            print('The winner is {}'.format('X' if 3 - piece_type == 1 else 'O'))
+            print('The winner is {}'.format(
+                'X' if 3 - piece_type == 1 else 'O'))
             sys.exit(3 - piece_type)
 
         go.died_pieces = go.remove_died_pieces(3 - piece_type)
@@ -434,13 +453,13 @@ def judge(n_move, verbose=False):
         go.visualize_board()
         print()
 
-    if go.game_end(piece_type, action):       
+    if go.game_end(piece_type, action):
         result = go.judge_winner()
         if verbose:
             print('Game end.')
-            if result == 0: 
+            if result == 0:
                 print('The game is a tie.')
-            else: 
+            else:
                 print('The winner is {}'.format('X' if result == 1 else 'O'))
         sys.exit(result)
 
@@ -455,10 +474,10 @@ def judge(n_move, verbose=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--move", "-m", type=int, help="number of total moves", default=0)
-    parser.add_argument("--verbose", "-v", type=bool, help="print board", default=False)
+    parser.add_argument("--move", "-m", type=int,
+                        help="number of total moves", default=0)
+    parser.add_argument("--verbose", "-v", type=bool,
+                        help="print board", default=False)
     args = parser.parse_args()
 
     judge(args.move, args.verbose)
-        
-        
