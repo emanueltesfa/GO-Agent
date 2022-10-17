@@ -26,19 +26,19 @@ class QLearner:
 
     def Q(self, state):
         if state not in self.q_values:
-            q_val = np.zeros((3, 3))
+            q_val = np.zeros((5, 5))
             q_val.fill(self.initial_value)
             self.q_values[state] = q_val
         return self.q_values[state]
 
-    def _select_best_move(self, board):
-        state = board.encode_state()
+    def _select_best_move(self, board, piece_type):
+        state = board.encode_state() #####################################
         q_values = self.Q(state)
         row, col = 0, 0
         curr_max = -np.inf
         while True:
             i, j = self._find_max(q_values)
-            if board.is_valid_move(i, j):
+            if board.valid_place_check(i, j, piece_type):
                 return i, j
             else:
                 q_values[i][j] = -1.0
@@ -46,34 +46,37 @@ class QLearner:
     def _find_max(self, q_values):
         curr_max = -np.inf
         row, col = 0, 0
-        for i in range(0, 3):
-            for j in range(0, 3):
+        for i in range(0, 5):
+            for j in range(0, 5):
                 if q_values[i][j] > curr_max:
                     curr_max = q_values[i][j]
                     row, col = i, j
+        print(row,col)
         return row, col
 
-    def move(self, board):
+    def move(self, board, piece_type):
         """ make a move
         """
-        if board.game_over():
+        if board.game_end(piece_type):
             return
-        row, col = self._select_best_move(board)
+        row, col = self._select_best_move(board, piece_type)
         self.history_states.append((board.encode_state(), (row, col)))
-        return board.move(row, col, self.side)
+        return row, col
 
     def learn(self, board):
         """ when games ended, this method will be called to update the qvalues
         """
-        if board.game_result == 0:
+        if board.judge_winner == 0:
             reward = DRAW_REWARD
-        elif board.game_result == self.side:
+        elif board.judge_winner == self.side:
             reward = WIN_REWARD
         else:
             reward = LOSS_REWARD
         self.history_states.reverse()
         max_q_value = -1.0
         for hist in self.history_states:
+            print("enter learn")
+
             state, move = hist
             q = self.Q(state)
             if max_q_value < 0:
@@ -82,4 +85,6 @@ class QLearner:
                 q[move[0]][move[1]] = q[move[0]][move[1]] * \
                     (1 - self.alpha) + self.alpha * self.gamma * max_q_value
             max_q_value = np.max(q)
+            print("q is: ", q)
         self.history_states = []
+        #print(q)
