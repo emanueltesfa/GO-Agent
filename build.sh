@@ -122,8 +122,8 @@ do
         fi
 # game 1 finish, LEARN
 
-        $learn = 'T'
-        python3 $prefix/my_player3.py -l $arg1 $winner
+        arg1='T'
+        python3 $prefix/my_player3.py -l $arg1 -w $winner
 
         # Student takes Black
         echo "=====Round $((round+1))====="
@@ -139,8 +139,8 @@ do
             echo 'Black(You) lose.'
         fi
 # game 2 finish , LEARN
-        $learn = 'T'
-        python3 $prefix/my_player3.py -l $arg1 $winner
+        arg1='T'
+        python3 $prefix/my_player3.py -l $arg1 -w $winner
 
     done
 

@@ -1,11 +1,9 @@
+import argparse
 import random
 import sys
 from read import readInput
 from write import writeOutput
-
-
 from host import GO
-
 import numpy as np
 import pickle
 
@@ -57,10 +55,10 @@ class QLearner:
         count = 0
         while count < 26:
             i, j = self._find_max(q_values)
-            print("loop best move")
-            board.visualize_board()
-            print(board.valid_place_check(i, j, piece_type))
-            print(i, j)
+            #print("loop best move")
+            # board.visualize_board()
+            #print(board.valid_place_check(i, j, piece_type))
+            #print(i, j)
             if board.valid_place_check(i, j, piece_type):
                 return i, j
             else:
@@ -81,7 +79,7 @@ class QLearner:
                         continue
             if q_values[i][j] == -1.0 or curr_max == -np.inf:
                 continue
-        print("loop findmax")
+        #print("loop findmax")
         return row, col
 
     def move(self, board, piece_type):
@@ -94,7 +92,7 @@ class QLearner:
             return
         temp_key = encode_state(board)
         self.history_states.append((temp_key, (row, col)))
-        print("loop move")
+        #print("loop move")
 
         pickle.dump(self.history_states, open(
             "temp_qval_hist.txt", "wb"))  # to send
@@ -103,18 +101,30 @@ class QLearner:
 
         return row, col
 
-    def learn(self, board):
+    def learn(self, board, winner, piece_type):
         """ when games ended, this method will be called to update the qvalues
+        Param: piece_type ,1('X') or 2('O') 
         """
-        if board.judge_winner == 0:
+
+        # im x = 1 = black and winner = 1 then win reward
+        # im o = 2 = white and winner = 2 then win reward
+        print("enter the learn")
+        if winner == 0:
             reward = DRAW_REWARD
-        elif board.judge_winner == self.side:
+        elif winner == 1 and piece_type == 1:
             reward = WIN_REWARD
+        elif winner == 1 and piece_type == 2:
+            reward = LOSS_REWARD
+        elif winner == 2 and piece_type == 2:
+            reward = WIN_REWARD
+        elif winner == 1 and piece_type == 1:
+            reward = LOSS_REWARD
         else:
             reward = LOSS_REWARD
         self.history_states.reverse()
         max_q_value = -1.0
         for hist in self.history_states:
+            print("Enter history of states")
             state, move = hist
             q = self.Q(state)
             if max_q_value < 0:
@@ -138,6 +148,12 @@ class RandomPlayer():
 
 if __name__ == "__main__":
     # if arg # do new function learn #else move
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--learn", "-l", type=str)
+    parser.add_argument("--winner", "-w", type=str)
+    args = parser.parse_args()
+    print("arg winner and learn is: ",  args.learn, args.winner)
+
     qlearner = QLearner()
     N = 5
     piece_type, previous_board, board = readInput(N)
@@ -145,7 +161,11 @@ if __name__ == "__main__":
     go.set_board(piece_type, previous_board, board)
     player = RandomPlayer()
     qlearner.history_states += pickle.load(open("temp_qval_hist.txt", "rb"))
-    print(qlearner.history_states)
+    print(len(qlearner.history_states))
+
+    if args.learn == "T":
+        # learn
+        qlearner.learn(board, args.winner, piece_type)
 
     action = player.get_input(go, piece_type, qlearner)
 
