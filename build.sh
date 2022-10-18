@@ -120,6 +120,10 @@ do
         else
             echo 'White(You) lose.'
         fi
+# game 1 finish, LEARN
+
+        $learn = 'T'
+        python3 $prefix/my_player3.py -l $arg1 $winner
 
         # Student takes Black
         echo "=====Round $((round+1))====="
@@ -134,6 +138,10 @@ do
         else
             echo 'Black(You) lose.'
         fi
+# game 2 finish , LEARN
+        $learn = 'T'
+        python3 $prefix/my_player3.py -l $arg1 $winner
+
     done
 
 

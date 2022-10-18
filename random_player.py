@@ -31,8 +31,6 @@ class RandomPlayer():
             print("Hello", go.score(piece_type))
 
 """
-        print(type(possible_placements))
-
         if not possible_placements:
             return "PASS"
         else:
