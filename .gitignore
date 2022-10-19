@@ -1,7 +1,7 @@
 .__pycache__/
 .ipynb_checkpoints/
-.input.txt
-.output.txt
+/.input.txt
+/.output.txt
 .DS_Store
-/temp_move_hist.txt
-/temp_qval.txt
+temp_move_hist.txt
+temp_qval.txt
