@@ -90,7 +90,7 @@ class QLearner:
         self.history_states.append((temp_key, (row, col)))
 
         pickle.dump(self.history_states, open(
-            "temp_move_hist.txt", "wb"))  # to send
+            "write_folder/temp_move_hist.txt", "wb"))  # to send
 
         # favorite_color = pickle.load(open("save.p", "rb"))
 
@@ -118,7 +118,7 @@ class QLearner:
         self.history_states.reverse()
         max_q_value = -1.0
 
-        print("Winner: ", (winner),"Piece_Type: ",  (piece_type), "Reward: ", reward)
+        #print("Winner: ", (winner),"Piece_Type: ",  (piece_type), "Reward: ", reward)
         for hist in self.history_states:
             state, move = hist
             q = self.Q(state)
@@ -129,9 +129,9 @@ class QLearner:
                     (1 - self.alpha) + self.alpha * self.gamma * max_q_value
             max_q_value = np.max(q)
         self.history_states = []
-        open('temp_move_hist.txt', 'w').close() # clear contents of my file, only need history of states for learn then reset 
+        open('write_folder/temp_move_hist.txt', 'w').close() # clear contents of my file, only need history of states for learn then reset 
         pickle.dump(self.q_values, open(
-            "temp_qval.txt", "wb")) 
+            "write_folder/temp_qval.txt", "wb")) 
 
 
 class RandomPlayer():
@@ -184,13 +184,13 @@ if __name__ == "__main__":
     go.set_board(piece_type, previous_board, board)
     player = RandomPlayer()
     
-    bool_empty = os.stat("temp_move_hist.txt").st_size == 0
+    bool_empty = os.stat("write_folder/temp_move_hist.txt").st_size == 0
     if bool_empty == False:
-        qlearner.history_states = pickle.load(open("temp_move_hist.txt", "rb"))
+        qlearner.history_states = pickle.load(open("write_folder/temp_move_hist.txt", "rb"))
 
-    bool_empty2 = os.stat("temp_qval.txt").st_size == 0
+    bool_empty2 = os.stat("write_folder/temp_qval.txt").st_size == 0
     if bool_empty2 == False:
-        qlearner.q_values = pickle.load(open("temp_qval.txt", "rb"))
+        qlearner.q_values = pickle.load(open("write_folder/temp_qval.txt", "rb"))
 
 
     if args.learn == "T":

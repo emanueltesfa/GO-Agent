@@ -295,7 +295,7 @@ class GO:
         '''
         board = self.board
 
-        print('-' * len(board) * 2)
+        """print('-' * len(board) * 2)
         for i in range(len(board)):
             for j in range(len(board)):
                 if board[i][j] == 0:
@@ -305,7 +305,7 @@ class GO:
                 else:
                     print('O', end=' ')
             print()
-        print('-' * len(board) * 2)
+        print('-' * len(board) * 2)"""
 
     def game_end(self, piece_type, action="MOVE"):
         '''
@@ -382,18 +382,18 @@ class GO:
             # Judge if the game should end
             if self.game_end(piece_type):
                 result = self.judge_winner()
-                if verbose:
+                """if verbose:
                     print('Game ended.')
                     if result == 0:
                         print('The game is a tie.')
                     else:
                         print('The winner is {}'.format(
-                            'X' if result == 1 else 'O'))
+                            'X' if result == 1 else 'O'))"""
                 return result
 
             if verbose:
                 player = "X" if piece_type == 1 else "O"
-                print(player + " makes move...")
+                # print(player + " makes move...")
 
             # Game continues
             if piece_type == 1:
@@ -403,7 +403,7 @@ class GO:
 
             if verbose:
                 player = "X" if piece_type == 1 else "O"
-                print(action)
+                #print(action)
 
             if action != "PASS":
                 # If invalid input, continue the loop. Else it places a chess on the board.
@@ -419,7 +419,7 @@ class GO:
 
             if verbose:
                 self.visualize_board()  # Visualize the board again
-                print()
+                #print()
 
             self.n_move += 1
             self.X_move = not self.X_move  # Players take turn
@@ -442,9 +442,9 @@ def judge(n_move, verbose=False):
 
     if action == "MOVE":
         if not go.place_chess(x, y, piece_type):
-            print('Game end.')
-            print('The winner is {}'.format(
-                'X' if 3 - piece_type == 1 else 'O'))
+            #print('Game end.')
+            #print('The winner is {}'.format(
+             #   'X' if 3 - piece_type == 1 else 'O'))
             sys.exit(3 - piece_type)
 
         go.died_pieces = go.remove_died_pieces(3 - piece_type)
