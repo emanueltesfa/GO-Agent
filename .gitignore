@@ -3,5 +3,3 @@
 /.input.txt
 /.output.txt
 .DS_Store
-temp_move_hist.txt
-temp_qval.txt
