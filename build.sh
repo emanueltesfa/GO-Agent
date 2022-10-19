@@ -88,7 +88,7 @@ play()
 	echo $rst
 }
 
-play_time=2
+play_time=10
 
 ### start playing ###
 
@@ -121,9 +121,9 @@ do
             echo 'White(You) lose.'
         fi
 # game 1 finish, LEARN
-
+        pieceType=1
         arg1='T'
-        python3 $prefix/my_player3.py -l $arg1 -w $winner
+        python3 $prefix/my_player3.py -l $arg1 -w $winner -p $pieceType
 
         # Student takes Black
         echo "=====Round $((round+1))====="
@@ -139,8 +139,9 @@ do
             echo 'Black(You) lose.'
         fi
 # game 2 finish , LEARN
+        pieceType=2
         arg1='T'
-        python3 $prefix/my_player3.py -l $arg1 -w $winner
+        python3 $prefix/my_player3.py -l $arg1 -w $winner -p $pieceType
 
     done
 
