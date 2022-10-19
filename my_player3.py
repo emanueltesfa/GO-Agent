@@ -6,6 +6,7 @@ from write import writeOutput
 from host import GO
 import numpy as np
 import pickle
+import os
 
 
 WIN_REWARD = 1.0
@@ -109,20 +110,22 @@ class QLearner:
         # im x = 1 = black and winner = 1 then win reward
         # im o = 2 = white and winner = 2 then win reward
         print("enter the learn")
-        if winner == 0:
+        if winner == '0':
             reward = DRAW_REWARD
-        elif winner == 1 and piece_type == 1:
+        elif winner == '1' and piece_type == 1:
             reward = WIN_REWARD
-        elif winner == 1 and piece_type == 2:
+        elif winner == '1' and piece_type == 2:
             reward = LOSS_REWARD
-        elif winner == 2 and piece_type == 2:
+        elif winner == '2' and piece_type == 2:
             reward = WIN_REWARD
-        elif winner == 1 and piece_type == 1:
+        elif winner == '1' and piece_type == 2:
             reward = LOSS_REWARD
         else:
             reward = LOSS_REWARD
         self.history_states.reverse()
         max_q_value = -1.0
+
+        print("Winner: ", type(winner),"PieceType: ",  type(piece_type), "Reward: ", reward)
         for hist in self.history_states:
             print("Enter history of states")
             state, move = hist
@@ -135,6 +138,7 @@ class QLearner:
             max_q_value = np.max(q)
             print("q is: ", q)
         self.history_states = []
+        open('temp_qval_hist.txt', 'w').close() # clear contents of my file, only need history of states for learn then reset 
         # print(q)
 
 
@@ -160,13 +164,15 @@ if __name__ == "__main__":
     go = GO(N)
     go.set_board(piece_type, previous_board, board)
     player = RandomPlayer()
-    qlearner.history_states += pickle.load(open("temp_qval_hist.txt", "rb"))
+    
+    bool_empty = os.stat("temp_qval_hist.txt").st_size == 0
+    if (bool_empty) == False:
+        qlearner.history_states = pickle.load(open("temp_qval_hist.txt", "rb"))
     print(len(qlearner.history_states))
 
     if args.learn == "T":
         # learn
         qlearner.learn(board, args.winner, piece_type)
-
-    action = player.get_input(go, piece_type, qlearner)
-
-    writeOutput(action)
+    else:
+        action = player.get_input(go, piece_type, qlearner)
+        writeOutput(action)
