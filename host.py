@@ -295,7 +295,7 @@ class GO:
         '''
         board = self.board
 
-        """print('-' * len(board) * 2)
+        print('-' * len(board) * 2)
         for i in range(len(board)):
             for j in range(len(board)):
                 if board[i][j] == 0:
@@ -305,7 +305,7 @@ class GO:
                 else:
                     print('O', end=' ')
             print()
-        print('-' * len(board) * 2)"""
+        print('-' * len(board) * 2)
 
     def game_end(self, piece_type, action="MOVE"):
         '''
