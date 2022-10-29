@@ -1,3 +1,4 @@
+from os import stat
 import random
 import sys
 from read import readInput
@@ -7,6 +8,7 @@ import time
 
 from host import GO
 
+start = time.time()
 # minimax
 
 
@@ -28,28 +30,43 @@ class RandomPlayer():
         # print(go.score(self.piece_type))
 
         #place_chess or go.copy_board()
+        
 
+        numPieces = 0
+        for i in range(go.size):
+            for j in range(go.size):
+                if go.board[i][j] != 0:
+                    numPieces += 1
+        
+        max_depth =  int((2 ** (numPieces / 10) ) + 1)
+        if numPieces == 0 or numPieces == 1:
+            if go.valid_place_check(1, 1, self.piece_type, test_check=False):
+                return [1,1]
 
+        # print("DPETH WOULD BE: ", max_depth, "AT PIECE COUNT OF: ", numPieces)
 
         best_score = -np.inf
         best_move = [-1, -1]
         temp_board = go.copy_board()
         #print(type(go))
         #print(type(temp_board))
-        count = 0
+        #count = 0
+        current_time = 0 
+        mid_point_time = 0
         for i in range(temp_board.size):
             for j in range(temp_board.size):
                 
-                count += 1
+                #count += 1
                 
                 temp_board = go.copy_board()
+              
 
                 #print(i, j)
                 if temp_board.valid_place_check(i, j, self.piece_type, test_check=False):
                     temp_board.place_chess(i, j, self.piece_type)
                     temp_board.died_pieces = temp_board.remove_died_pieces(3 - self.piece_type)
                     #temp_board.visualize_board()
-                    score = self.minimax(temp_board, 0, False, 3- self.piece_type)
+                    score = self.minimax(temp_board, 0, False, 3- self.piece_type, max_depth)
 
                     #print("score is: ", score, "best score is: ", best_move)
                     #print("score for board is: ", score)
@@ -59,29 +76,49 @@ class RandomPlayer():
                         best_score = score
                         #print("current i and j is: ", i , j)
                         best_move = i, j
+                        if score == 100:
+                            #print("\n\n\n RETURNED SCORE", best_score)
+
+                            return  best_move
                         #print("best move is: ",best_move, best_score)
                         # time.sleep(10)
+                # check if move is too close to 10 seconds 
+                mid_point_time = time.time() 
+        
+                if (mid_point_time - start) > 9.9: # return current best if near overtime! 
+                    print('overtime!')
+                    print(f"{(mid_point_time-start)*10**3:.03f}")
+                    print (mid_point_time - start, "\n")
+                    time.sleep(5)
+                    return best_move
+                    
+
         
         #print("Count is: ", count)
         if best_move == [-1,-1]:
             return "PASS"
         #print("\n\n\n RETURNED SCORE", best_score)
         #print("\n\n\n move i: ", best_move)
+        if len(temp_board.died_pieces  ) > 0:
+            print("NUM OF KILLED PIECES WITH MOVE POITENTIALLY OR LITERALLY: ", temp_board.died_pieces, len(temp_board.died_pieces))
+            time.sleep(5)
         return best_move
 
-    def minimax(self, temp_go, depth, isMax,piece_type):
+    def minimax(self, temp_go, depth, isMax,piece_type, max_depth):
     
         if temp_go.judge_winner() == 1:
-            # print ( " \n\n\n is a winner state \n\n\n")
+            print ( " \n\n\n is a WINNER MINIMAX state \n\n\n")
             return 100
         elif temp_go.judge_winner() == 0:
             return 0 
         elif temp_go.judge_winner() == -1:
+            print ( " \n\n\n is a LOSING MINIMAX state \n\n\n")
+
             return -100
         
 
-        #print('depth is ', depth)
-        if depth >= 2:
+        #print('current depth is ', depth, "Max depth: ", max_depth)
+        if depth >=  max_depth :
             # calc score funtion
             mid_game_score = calc_score(temp_go, self.piece_type)
             #print("\n\n\nFINAL SCORE", mid_game_score)
@@ -99,9 +136,9 @@ class RandomPlayer():
                     if temp_go_max.valid_place_check(i, j, self.piece_type, test_check=False):
                         temp_go_max.place_chess(i, j, self.piece_type)
                         temp_go_max.died_pieces = temp_go_max.remove_died_pieces(3 - self.piece_type)
-                        # temp_go_max.visualize_board()
+                        #temp_go_max.visualize_board()
 
-                        score = self.minimax(temp_go_max, depth + 1, False, 3- self.piece_type)
+                        score = self.minimax(temp_go_max, depth + 1, False, 3- self.piece_type, max_depth)
                         # print("recursive max")
 
                         #temp_go_max.visualize_board()
@@ -126,11 +163,11 @@ class RandomPlayer():
                         #print("recursive")
                         temp_go_mini.place_chess(i, j, 3- self.piece_type)
                         temp_go_mini.died_pieces = temp_go_mini.remove_died_pieces(3 - self.piece_type)
-                        #temp_go_mini.visualize_board()
+                        """if len(temp_go_mini.died_pieces  ) > 0:
+                            temp_go_mini.visualize_board()"""
 
-                        score = self.minimax(temp_go_mini, depth + 1, True, 3 - self.piece_type)
-                        #temp_go.visualize_board()
-
+                        score = self.minimax(temp_go_mini, depth + 1, True, 3 - self.piece_type, max_depth)
+                      
                         #print("score for board is: ", score)
                         if score < best_score:
                             #print("enter mini update!")
@@ -153,7 +190,13 @@ def calc_score ( go, piece_type ):
     
     #print("score: ", score)
     tempScore = go.score(piece_type)
-    score = score + tempScore
+    num_died_pieces = go.died_pieces 
+    """if len(num_died_pieces ) > 0:
+
+        go.visualize_board()
+        print(num_died_pieces)"""
+    
+    score = score + tempScore + (3 * len(num_died_pieces))
     #print("tempScore: ", tempScore)
     #print("final score: " , score)
     return score
@@ -167,4 +210,6 @@ if __name__ == "__main__":
     player = RandomPlayer(piece_type)
     action = player.get_input(go, piece_type)
     #time.sleep(10)
+    end = time.time()
+    print(f"Move took:\tTime taken: {(end-start)*10**3:.03f}ms")
     writeOutput(action)
