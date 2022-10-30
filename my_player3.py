@@ -34,7 +34,7 @@ class RandomPlayer():
             if go.valid_place_check(1, 1, self.piece_type, test_check=False):
                 return [1,1]
 
-        print("DPETH WOULD BE: ", max_depth, "AT PIECE COUNT OF: ", numPieces)
+        #, "AT PIECE COUNT OF: ", numPieces)
 
         best_score = -np.inf
         best_move = [-1, -1]
@@ -69,7 +69,7 @@ class RandomPlayer():
                     print('overtime!')
                     print(f"{(mid_point_time-start)*10**3:.03f}")
                     print (mid_point_time - start, "\n")
-                    time.sleep(5)
+                    #time.sleep(5)
                     return best_move
                     
 
@@ -78,9 +78,9 @@ class RandomPlayer():
             return "PASS"
         #print("\n\n\n RETURNED SCORE", best_score)
         #print("\n\n\n move i: ", best_move)
-        if len(temp_board.died_pieces  ) > 0:
-            print("NUM OF KILLED PIECES WITH MOVE POITENTIALLY OR LITERALLY: ", temp_board.died_pieces, len(temp_board.died_pieces))
-            time.sleep(5)
+        #if len(temp_board.died_pieces  ) > 0:
+            #print("NUM OF KILLED PIECES WITH MOVE POITENTIALLY OR LITERALLY: ", temp_board.died_pieces, len(temp_board.died_pieces))
+            #time.sleep(5)
         return best_move
 
     def minimax(self, temp_go, depth, isMax,piece_type, max_depth, alpha, beta, counter):
@@ -191,7 +191,6 @@ def calc_score ( go, piece_type ):
     tempScore = go.score(piece_type)
     num_died_pieces = go.died_pieces 
     """if len(num_died_pieces ) > 0:
-
         go.visualize_board()
         print(num_died_pieces)"""
     
@@ -210,5 +209,5 @@ if __name__ == "__main__":
     action = player.get_input(go, piece_type)
     #time.sleep(10)
     end = time.time()
-    print(f"Move took:\tTime taken: {(end-start)*10**3:.03f}ms")
+    #print(f"Move took:\tTime taken: {(end-start)*10**3:.03f}ms")
     writeOutput(action)
