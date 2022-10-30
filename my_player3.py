@@ -9,6 +9,7 @@ import time
 from host import GO
 
 start = time.time()
+MAX, MIN = 1000, -1000
 # minimax
 
 
@@ -19,17 +20,7 @@ class RandomPlayer():
 
     
     def get_input(self, go, piece_type):
-        '''
-        Get one input.
 
-        :param go: Go instance.
-        :param self.piece_type: 1('X') or 2('O').
-        :return: (row, column) coordinate of input.
-        '''
-        #possible_placements = []
-        # print(go.score(self.piece_type))
-
-        #place_chess or go.copy_board()
         
 
         numPieces = 0
@@ -38,53 +29,42 @@ class RandomPlayer():
                 if go.board[i][j] != 0:
                     numPieces += 1
         
-        max_depth =  int((2 ** (numPieces / 10) ) + 1)
+        max_depth =  int((2 ** (numPieces / 10) ) + 3)
         if numPieces == 0 or numPieces == 1:
             if go.valid_place_check(1, 1, self.piece_type, test_check=False):
                 return [1,1]
 
-        # print("DPETH WOULD BE: ", max_depth, "AT PIECE COUNT OF: ", numPieces)
+        print("DPETH WOULD BE: ", max_depth, "AT PIECE COUNT OF: ", numPieces)
 
         best_score = -np.inf
         best_move = [-1, -1]
         temp_board = go.copy_board()
-        #print(type(go))
-        #print(type(temp_board))
-        #count = 0
-        current_time = 0 
+
         mid_point_time = 0
         for i in range(temp_board.size):
             for j in range(temp_board.size):
                 
-                #count += 1
-                
                 temp_board = go.copy_board()
               
 
-                #print(i, j)
                 if temp_board.valid_place_check(i, j, self.piece_type, test_check=False):
                     temp_board.place_chess(i, j, self.piece_type)
                     temp_board.died_pieces = temp_board.remove_died_pieces(3 - self.piece_type)
                     #temp_board.visualize_board()
-                    score = self.minimax(temp_board, 0, False, 3- self.piece_type, max_depth)
+                    score = self.minimax(temp_board, 0, False, 3- self.piece_type, max_depth, -np.inf, np.inf, 0)
 
-                    #print("score is: ", score, "best score is: ", best_move)
-                    #print("score for board is: ", score)
+
 
                     if score > best_score :
-                        #print("\n\n\nenter best score update \n\n\n")
                         best_score = score
-                        #print("current i and j is: ", i , j)
                         best_move = i, j
                         if score == 100:
-                            #print("\n\n\n RETURNED SCORE", best_score)
-
                             return  best_move
                         #print("best move is: ",best_move, best_score)
                         # time.sleep(10)
+                    
                 # check if move is too close to 10 seconds 
                 mid_point_time = time.time() 
-        
                 if (mid_point_time - start) > 9.9: # return current best if near overtime! 
                     print('overtime!')
                     print(f"{(mid_point_time-start)*10**3:.03f}")
@@ -94,7 +74,6 @@ class RandomPlayer():
                     
 
         
-        #print("Count is: ", count)
         if best_move == [-1,-1]:
             return "PASS"
         #print("\n\n\n RETURNED SCORE", best_score)
@@ -104,15 +83,15 @@ class RandomPlayer():
             time.sleep(5)
         return best_move
 
-    def minimax(self, temp_go, depth, isMax,piece_type, max_depth):
+    def minimax(self, temp_go, depth, isMax,piece_type, max_depth, alpha, beta, counter):
     
         if temp_go.judge_winner() == 1:
-            print ( " \n\n\n is a WINNER MINIMAX state \n\n\n")
+            #print ( " \n\n\n is a WINNER MINIMAX state \n\n\n")
             return 100
         elif temp_go.judge_winner() == 0:
             return 0 
         elif temp_go.judge_winner() == -1:
-            print ( " \n\n\n is a LOSING MINIMAX state \n\n\n")
+            #print ( " \n\n\n is a LOSING MINIMAX state \n\n\n")
 
             return -100
         
@@ -126,21 +105,18 @@ class RandomPlayer():
 
         if isMax:
             best_score = -np.inf
-            count = 0 
+            best = MAX
             for i in range(temp_go.size):
                 for j in range(temp_go.size):
-                    count += 1
-                    #print( count , "max" , i, j)
+                    counter +=1
                     temp_go_max = temp_go.copy_board()
 
                     if temp_go_max.valid_place_check(i, j, self.piece_type, test_check=False):
                         temp_go_max.place_chess(i, j, self.piece_type)
                         temp_go_max.died_pieces = temp_go_max.remove_died_pieces(3 - self.piece_type)
                         #temp_go_max.visualize_board()
-
-                        score = self.minimax(temp_go_max, depth + 1, False, 3- self.piece_type, max_depth)
-                        # print("recursive max")
-
+                        # print("COUNTER: ", counter)
+                        score = self.minimax(temp_go_max, depth + 1, False, 3- self.piece_type, max_depth, alpha, beta, counter)
                         #temp_go_max.visualize_board()
 #change wieghts
 # changre heurtsic mid game 
@@ -149,15 +125,25 @@ class RandomPlayer():
                             #print("enter max update!")
 
                             best_score = score
+                        
+                        best = max(best, score)
+                        alpha = max(alpha, best)
+            
+                        # Alpha Beta Pruning
+                        if beta <= alpha:
+                            #print("breaking loop")
+                            break
+                if beta <= alpha:
+                    #print("breaking loop")
+                    break
             return best_score
         else: # mini 
             best_score = np.inf
-            count = 0 
+            best = MIN
             for i in range(temp_go.size):
                 for j in range(temp_go.size):
-                    count += 1 
-                    #print(count, "min", i, j)
                     temp_go_mini = temp_go.copy_board()
+                    counter +=1
 
                     if temp_go_mini.valid_place_check(i, j, self.piece_type, test_check=False):
                         #print("recursive")
@@ -166,12 +152,25 @@ class RandomPlayer():
                         """if len(temp_go_mini.died_pieces  ) > 0:
                             temp_go_mini.visualize_board()"""
 
-                        score = self.minimax(temp_go_mini, depth + 1, True, 3 - self.piece_type, max_depth)
+                        score = self.minimax(temp_go_mini, depth + 1, True, 3 - self.piece_type, max_depth, alpha, beta, counter)
                       
                         #print("score for board is: ", score)
                         if score < best_score:
                             #print("enter mini update!")
                             best_score = score
+                        
+                        #Alpha Beta Pruning
+                        best = min(best, score)
+                        beta = min(beta, best)
+            
+                        # Alpha Beta Pruning
+                        if beta <= alpha:
+                            #print("breaking loop")
+                            break
+                if beta <= alpha:
+                    #print("breaking loop")
+                    break
+
             return best_score
 
 def calc_score ( go, piece_type ):
