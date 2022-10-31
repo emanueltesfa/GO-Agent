@@ -13,7 +13,7 @@ start = time.time()
 MAX, MIN = 1000, -1000
 
 
-class RandomPlayer():
+class MinimaxPlayer():
     def __init__(self, piece_type):
         self.type = 'random'
         self.piece_type = piece_type
@@ -57,6 +57,7 @@ class RandomPlayer():
                     #temp_board.visualize_board()
                     score = self.minimax(temp_board, 0, False, 3- self.piece_type, max_depth, -np.inf, np.inf, 0)
 
+
                     if score > best_score :
                         best_score = score
                         best_move = i, j
@@ -68,7 +69,7 @@ class RandomPlayer():
                 if (mid_point_time - start) > 9.9: # return current best if near overtime! 
                     return best_move
                     
-        
+        print("best move", best_move, "best score", best_score)
         if best_move == [-1,-1]:
             return "PASS"
         return best_move
@@ -120,7 +121,7 @@ class RandomPlayer():
                     counter +=1
 
                     if temp_go_mini.valid_place_check(i, j, self.piece_type, test_check=False):
-                        temp_go_mini.place_chess(i, j, 3 - self.piece_type)
+                        temp_go_mini.place_chess(i, j, self.piece_type)
                         temp_go_mini.died_pieces = temp_go_mini.remove_died_pieces(3 - self.piece_type)
                         score = self.minimax(temp_go_mini, depth + 1, True, 3 - self.piece_type, max_depth, alpha, beta, counter)
                       
@@ -144,22 +145,52 @@ def calc_score( go, piece_type ):
     # find_liberty
   
     score = 0 
+    opp_score = 0 
     tempScore = go.score(piece_type)
     died_pieces = go.died_pieces 
-    dead_piece_score = 0
-    rem_piece_type = None
     if piece_type == 1 and go.judge_winner == 1:
         return 500
 
+    temp_neigh = 0
+    allies = 0
+
+    #liberties 
     for i in range(go.size):
         for j in range(go.size):
             if go.board[i][j] == piece_type: 
                 temp_neigh = go.detect_neighbor(i,j)
                 for z in temp_neigh:
                     if go.board[z[0]][z[1]] == 0: # if empty 
-                        score += 1 
+                        score += 1
+    # allies                
+    for i in range(go.size): 
+        for j in range(go.size): 
+            if go.board[i][j] == piece_type: 
+                allies += len( go.ally_dfs(i,j) )
 
-    score = score + tempScore + (100 * len(died_pieces))
+    allies_opp, libs_opp = 0,0
+    # liberties of opp
+    for i in range(go.size):
+        for j in range(go.size):
+            if go.board[i][j] != piece_type: 
+                temp_neigh = go.detect_neighbor(i,j)
+                for z in temp_neigh:
+                    if go.board[z[0]][z[1]] == 0: # if empty 
+                        libs_opp += 1
+    # allies of opp               
+    for i in range(go.size): 
+        for j in range(go.size): 
+            if go.board[i][j] != piece_type: 
+                allies_opp += len( go.ally_dfs(i,j) )
+
+
+    opp_score = allies_opp + libs_opp + go.score( 3 - piece_type) 
+                
+    
+    # neighboring liberty 
+    
+    score = score + tempScore + (100 * len(died_pieces)) + ( allies * 0.5) 
+    score = score - opp_score
     return score
 
 
@@ -181,9 +212,8 @@ if __name__ == "__main__":
     piece_type, previous_board, board = readInput(N)
     go = GO(N)
     go.set_board(piece_type, previous_board, board)
-    player = RandomPlayer(piece_type)
+    player = MinimaxPlayer(piece_type)
     action = player.get_input(go, piece_type)
-    #time.sleep(10)
     end = time.time()
     print(f"Move took:\tTime taken: {(end-start)*10**3:.03f}ms")
     writeOutput(action)
